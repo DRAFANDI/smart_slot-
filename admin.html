@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Slots — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #ffffff0f;
+    --accent: #c8a96e;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --blue: #7c9fff;
+    --text: #f0ede8;
+    --muted: #777;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* LOGIN */
+  .login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .login-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 340px;
+    text-align: center;
+  }
+
+  .login-card h2 { font-size: 22px; margin-bottom: 8px; }
+  .login-card p  { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+
+  .login-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    margin-bottom: 12px;
+    direction: ltr;
+    text-align: center;
+    letter-spacing: 0.2em;
+  }
+
+  .login-input:focus { border-color: var(--accent); }
+
+  .login-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), #e8c98e);
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0a0a0f;
+    cursor: pointer;
+  }
+
+  .login-error { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+
+  /* DASHBOARD */
+  .dashboard { display: none; max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .topbar h1 { font-size: 22px; font-weight: 900; }
+  .topbar h1 span { color: var(--accent); }
+
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+  .refresh-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .refresh-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* ANALYTICS */
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .stat-label { font-size: 11px; color: var(--muted); }
+
+  /* SERVICE BREAKDOWN */
+  .service-breakdown {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+  }
+
+  .breakdown-title { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-service { font-weight: 600; }
+  .breakdown-avg { color: var(--accent); font-weight: 700; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    padding: 7px 16px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tab-btn.active { border-color: var(--accent); color: var(--accent); }
+
+  .tab-count {
+    background: var(--surface);
+    border-radius: 100px;
+    padding: 1px 7px;
+    font-size: 11px;
+  }
+
+  /* OFFERS TABLE */
+  .offers-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .offer-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    transition: border-color 0.2s;
+  }
+
+  .offer-card:hover { border-color: #ffffff18; }
+
+  .offer-card.accepted { border-right: 3px solid var(--green); }
+  .offer-card.rejected { border-right: 3px solid var(--red); }
+  .offer-card.waitlist { border-right: 3px solid var(--yellow); }
+  .offer-card.pending  { border-right: 3px solid var(--blue); }
+
+  .offer-info { display: flex; flex-direction: column; gap: 3px; }
+
+  .offer-name { font-size: 14px; font-weight: 700; }
+
+  .offer-meta {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .offer-amount { font-size: 18px; font-weight: 900; color: var(--accent); }
+
+  .offer-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-top: 8px; }
+
+  .action-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+
+  .action-btn.accept  { border-color: var(--green); color: var(--green); }
+  .action-btn.reject  { border-color: var(--red);   color: var(--red);   }
+  .action-btn.waitlist{ border-color: var(--yellow); color: var(--yellow);}
+  .action-btn.attended{ border-color: var(--accent); color: var(--accent);}
+  .action-btn.whatsapp{ border-color: #25D366; color: #25D366; text-decoration: none; display: inline-flex; align-items: center; }
+
+  .action-btn:hover { opacity: 0.8; transform: translateY(-1px); }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-weight: 600;
+  }
+
+  .status-badge.pending  { background: #7c9fff18; color: var(--blue); }
+  .status-badge.accepted { background: #4ade8018; color: var(--green); }
+  .status-badge.rejected { background: #f8717118; color: var(--red); }
+  .status-badge.waitlist { background: #fbbf2418; color: var(--yellow); }
+
+  .attended-tag {
+    background: #c8a96e18;
+    color: var(--accent);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 100px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .loading-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .service-tag {
+    background: var(--surface);
+    padding: 1px 8px;
+    border-radius: 100px;
+    font-size: 10px;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <h2>Smart <span style="color:var(--accent)">Slots</span></h2>
+    <p>لوحة تحكم العيادة</p>
+    <input class="login-input" type="email" id="emailInput"
+      placeholder="admin@email.com" style="letter-spacing:0; margin-bottom:10px" />
+    <input class="login-input" type="password" id="passwordInput"
+      placeholder="••••••••" onkeydown="if(event.key==='Enter')login()" />
+    <button class="login-btn" onclick="login()">دخول</button>
+    <p class="login-error" id="loginError">بيانات الدخول غير صحيحة</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+
+  <div class="topbar">
+    <h1>Smart <span>Slots</span> — Admin</h1>
+    <div class="topbar-actions">
+      <button class="refresh-btn" onclick="loadAll()">↻ تحديث</button>
+      <button class="refresh-btn" onclick="logout()">خروج</button>
+    </div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="analytics-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="statTotal">—</div>
+      <div class="stat-label">إجمالي العروض</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statAccepted" style="color:var(--green)">—</div>
+      <div class="stat-label">مقبولة</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statPending" style="color:var(--blue)">—</div>
+      <div class="stat-label">قيد المراجعة</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statRate" style="color:var(--accent)">—</div>
+      <div class="stat-label">نسبة القبول</div>
+    </div>
+  </div>
+
+  <!-- SERVICE BREAKDOWN -->
+  <div class="service-breakdown">
+    <div class="breakdown-title">متوسط العروض حسب الخدمة</div>
+    <div id="breakdownContent">
+      <div class="loading-state">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('pending',  this)">
+      قيد المراجعة <span class="tab-count" id="countPending">0</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('accepted', this)">
+      مقبولة <span class="tab-count" id="countAccepted">0</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('waitlist', this)">
+      انتظار <span class="tab-count" id="countWaitlist">0</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('rejected', this)">
+      مرفوضة <span class="tab-count" id="countRejected">0</span>
+    </button>
+  </div>
+
+  <!-- OFFERS LIST -->
+  <div class="offers-list" id="offersList">
+    <div class="loading-state">جاري تحميل العروض...</div>
+  </div>
+
+</div>
+
+<script type="module">
+import { createClient } from '@supabase/supabase-js'
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js'
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+// ── Supabase Auth ──────────────────────────────────────────
+let allOffers = []
+let currentTab = 'pending'
+
+async function showDashboardIfLoggedIn() {
+  const { data } = await supabase.auth.getSession()
+  if (data.session) {
+    document.getElementById('loginScreen').style.display = 'none'
+    document.getElementById('dashboard').style.display   = 'block'
+    loadAll()
+  }
+}
+
+window.login = async function() {
+  const email = document.getElementById('emailInput').value.trim()
+  const password = document.getElementById('passwordInput').value
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+  if (error) {
+    document.getElementById('loginError').style.display = 'block'
+    return
+  }
+
+  document.getElementById('loginScreen').style.display = 'none'
+  document.getElementById('dashboard').style.display   = 'block'
+  loadAll()
+}
+
+window.logout = async function() {
+  await supabase.auth.signOut()
+  location.reload()
+}
+
+showDashboardIfLoggedIn()
+
+// ── Load all offers ──────────────────────────────────────
+window.loadAll = async function() {
+  const { data, error } = await supabase
+    .from('offers')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) { console.error('Load offers error:', error); alert('خطأ في تحميل العروض: ' + (error.message || '')); return }
+
+  allOffers = data || []
+  renderAnalytics()
+  renderBreakdown()
+  renderOffers()
+}
+
+// ── Analytics ────────────────────────────────────────────
+function renderAnalytics() {
+  const total    = allOffers.length
+  const accepted = allOffers.filter(o => o.status === 'accepted').length
+  const pending  = allOffers.filter(o => o.status === 'pending').length
+  const rate     = total > 0 ? Math.round((accepted / total) * 100) : 0
+
+  document.getElementById('statTotal').textContent    = total
+  document.getElementById('statAccepted').textContent = accepted
+  document.getElementById('statPending').textContent  = pending
+  document.getElementById('statRate').textContent     = rate + '٪'
+
+  const tabs = ['pending','accepted','waitlist','rejected']
+  tabs.forEach(s => {
+    document.getElementById('count' + capitalize(s)).textContent =
+      allOffers.filter(o => o.status === s).length
+  })
+}
+
+// ── Service breakdown ────────────────────────────────────
+function renderBreakdown() {
+  const services = ['laser','filler','botox']
+  const labels   = { laser: 'ليزر ✨', filler: 'فيلر 💉', botox: 'بوتوكس 🧬' }
+
+  const html = services.map(s => {
+    const group = allOffers.filter(o => o.service === s)
+    const count = group.length
+    const avg   = count > 0
+      ? Math.round(group.reduce((sum, o) => sum + o.offer_amount, 0) / count)
+      : 0
+    return `
+      <div class="breakdown-row">
+        <span class="breakdown-service">${labels[s]}</span>
+        <span style="color:var(--muted);font-size:12px">${count} عرض</span>
+        <span class="breakdown-avg">${avg ? avg + ' ر.س' : '—'}</span>
+      </div>`
+  }).join('')
+
+  document.getElementById('breakdownContent').innerHTML = html || '<div class="empty-state">لا توجد بيانات</div>'
+}
+
+// ── Tab switch ───────────────────────────────────────────
+window.switchTab = function(tab, el) {
+  currentTab = tab
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
+  el.classList.add('active')
+  renderOffers()
+}
+
+// ── Render offers ────────────────────────────────────────
+function renderOffers() {
+  const filtered = allOffers.filter(o => o.status === currentTab)
+  const list = document.getElementById('offersList')
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">لا توجد عروض في هذا القسم</div>'
+    return
+  }
+
+  const serviceLabel = { laser:'ليزر', filler:'فيلر', botox:'بوتوكس' }
+  const statusLabel  = { pending:'قيد المراجعة', accepted:'مقبول', rejected:'مرفوض', waitlist:'انتظار' }
+
+  list.innerHTML = filtered.map(o => {
+    const time = new Date(o.created_at).toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' })
+    const attendedTag = o.attended ? '<span class="attended-tag">✓ حضر</span>' : ''
+
+    const actions = buildActions(o)
+
+    return `
+    <div class="offer-card ${o.status}" id="card-${o.id}">
+      <div>
+        <div class="offer-info">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="offer-name">${o.full_name}</span>
+            <span class="status-badge ${o.status}">${statusLabel[o.status]}</span>
+            ${attendedTag}
+          </div>
+          <div class="offer-meta">
+            <span>📱 ${o.mobile}</span>
+            <button class="action-btn" onclick="copyPhone('${String(o.mobile || '').replace(/'/g, "\\'")}')">📋 نسخ الرقم</button>
+            <a class="action-btn whatsapp" target="_blank" href="${getWhatsappLink(o.mobile)}">واتساب</a>
+            <span class="service-tag">${serviceLabel[o.service] || o.service}</span>
+            <span>🕐 ${time}</span>
+          </div>
+          ${o.notes ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">📝 ${o.notes}</div>` : ''}
+        </div>
+        <div class="offer-actions">${actions}</div>
+      </div>
+      <div class="offer-amount">${o.offer_amount} <span style="font-size:12px;color:var(--muted);font-weight:400">ر.س</span></div>
+    </div>`
+  }).join('')
+}
+
+function buildActions(o) {
+  let btns = ''
+  if (o.status !== 'accepted') btns += `<button class="action-btn accept"  onclick="updateStatus('${o.id}','accepted')">✅ قبول</button>`
+  if (o.status !== 'waitlist') btns += `<button class="action-btn waitlist" onclick="updateStatus('${o.id}','waitlist')">⏳ انتظار</button>`
+  if (o.status !== 'rejected') btns += `<button class="action-btn reject"  onclick="updateStatus('${o.id}','rejected')">❌ رفض</button>`
+  if (o.status === 'accepted' && !o.attended)
+    btns += `<button class="action-btn attended" onclick="markAttended('${o.id}')">حضر ✓</button>`
+  return btns
+}
+
+// ── Actions ──────────────────────────────────────────────
+window.updateStatus = async function(id, status) {
+  const { error } = await supabase.from('offers').update({ status }).eq('id', id)
+  if (error) { console.error('Update status error:', error); alert('خطأ في تعديل الحالة: ' + (error.message || '')); return }
+  if (!error) {
+    const offer = allOffers.find(o => o.id === id)
+    if (offer) offer.status = status
+    renderAnalytics()
+    renderBreakdown()
+    renderOffers()
+  }
+}
+
+window.markAttended = async function(id) {
+  const { error } = await supabase.from('offers').update({ attended: true }).eq('id', id)
+  if (error) { console.error('Mark attended error:', error); alert('خطأ في تحديث الحضور: ' + (error.message || '')); return }
+  if (!error) {
+    const offer = allOffers.find(o => o.id === id)
+    if (offer) offer.attended = true
+    renderOffers()
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────
+window.copyPhone = async function(phone) {
+  try {
+    await navigator.clipboard.writeText(phone)
+    alert('تم نسخ الرقم: ' + phone)
+  } catch (err) {
+    const temp = document.createElement('input')
+    temp.value = phone
+    document.body.appendChild(temp)
+    temp.select()
+    document.execCommand('copy')
+    document.body.removeChild(temp)
+    alert('تم نسخ الرقم: ' + phone)
+  }
+}
+
+function getWhatsappLink(phone) {
+  const clean = String(phone || '').replace(/\D/g, '')
+  let international = clean
+  if (clean.startsWith('0')) international = '966' + clean.slice(1)
+  else if (!clean.startsWith('966')) international = '966' + clean
+  return 'https://wa.me/' + international
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1) }
+
+// ── Real-time updates ────────────────────────────────────
+supabase
+  .channel('offers-changes')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'offers' }, loadAll)
+  .subscribe()
+</script>
+</body>
+</html>

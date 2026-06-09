@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Slots</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #ffffff0f;
+    --accent: #c8a96e;
+    --accent2: #e8c98e;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --text: #f0ede8;
+    --muted: #888;
+    --laser-color: #7c9fff;
+    --filler-color: #c084fc;
+    --botox-color: #f472b6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 20%, #c8a96e08 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, #7c9fff06 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  .header h1 {
+    font-size: 34px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 14px;
+    letter-spacing: -0.5px;
+  }
+
+  .header h1 span { color: var(--accent); }
+
+  .hero-text {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.8;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  /* TIMER + SEATS */
+  .timer-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    animation: fadeDown 0.6s 0.1s ease both;
+  }
+
+  .timer-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+
+  .timer-count {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    direction: ltr;
+  }
+
+  .seats-info { text-align: right; }
+  .seats-num { font-size: 22px; font-weight: 700; }
+  .seats-num span { font-size: 13px; color: var(--muted); font-weight: 400; }
+
+  .seats-grid {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .seat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--green);
+    transition: background 0.4s;
+  }
+
+  .seat-dot.taken { background: #ffffff12; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  /* SERVICE CARDS */
+  .service-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 24px;
+    animation: fadeDown 0.6s 0.2s ease both;
+  }
+
+  .service-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 10px;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .service-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .service-btn.laser::before  { background: linear-gradient(135deg, #7c9fff14, transparent); }
+  .service-btn.filler::before { background: linear-gradient(135deg, #c084fc14, transparent); }
+  .service-btn.botox::before  { background: linear-gradient(135deg, #f472b614, transparent); }
+
+  .service-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px #0008; }
+
+  .service-btn.laser.active  { border-color: var(--laser-color); }
+  .service-btn.filler.active { border-color: var(--filler-color); }
+  .service-btn.botox.active  { border-color: var(--botox-color); }
+  .service-btn.active::before { opacity: 1; }
+
+  .check-mark {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 16px;
+    height: 16px;
+    background: var(--green);
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #000;
+  }
+  .service-btn.active .check-mark { display: flex; }
+
+  .service-icon  { font-size: 22px; margin-bottom: 6px; display: block; }
+  .service-name  { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .service-name.laser  { color: var(--laser-color); }
+  .service-name.filler { color: var(--filler-color); }
+  .service-name.botox  { color: var(--botox-color); }
+  .service-price { font-size: 10px; color: var(--muted); }
+
+  /* FORM CARD */
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    animation: fadeDown 0.6s 0.3s ease both;
+  }
+
+  .helper-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field-group { margin-bottom: 14px; }
+
+  .field-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .field-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field-input:focus { border-color: var(--accent); }
+  .field-input::placeholder { color: #ffffff25; }
+
+  .field-input.amount {
+    font-size: 24px;
+    font-weight: 700;
+    direction: ltr;
+    text-align: right;
+    padding-left: 56px;
+  }
+
+  .amount-wrapper { position: relative; }
+
+  .amount-suffix {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  /* SUBMIT */
+  .submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 14px;
+    padding: 18px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #0a0a0f;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeDown 0.6s 0.4s ease both;
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px #c8a96e33;
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .submit-btn .spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #0004;
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+
+  .submit-btn.loading .btn-text { display: none; }
+  .submit-btn.loading .spinner  { display: block; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .terms {
+    font-size: 11px;
+    color: #ffffff25;
+    text-align: center;
+    line-height: 1.7;
+    margin-top: 14px;
+    animation: fadeDown 0.6s 0.45s ease both;
+  }
+
+  /* RESULT OVERLAY */
+  .result-overlay {
+    position: fixed;
+    inset: 0;
+    background: #0a0a0fdd;
+    backdrop-filter: blur(14px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s;
+  }
+
+  .result-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 36px 28px;
+    text-align: center;
+    max-width: 340px;
+    width: 100%;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .result-overlay.show .result-card { transform: scale(1) translateY(0); }
+
+  .result-icon { font-size: 52px; margin-bottom: 16px; display: block; }
+
+  .result-title {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 10px;
+    color: var(--green);
+  }
+
+  .result-body {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .result-close {
+    width: 100%;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 13px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .result-close:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* CLOSED STATE */
+  .closed-banner {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+    margin-bottom: 24px;
+    display: none;
+  }
+
+  .closed-banner.show { display: block; }
+
+  .closed-banner p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-badge">
+      <div class="live-dot" id="liveDot"></div>
+      <span id="badgeText">نافذة مفتوحة الآن</span>
+    </div>
+    <h1>Smart <span>Slots</span></h1>
+    <p class="hero-text">
+      عند توفر مواعيد شاغرة، نفتح نافذة محدودة تتيح لك تقديم عرضك.<br><br>
+      في حال قبول العرض، يتم تأكيد موعدك لليوم نفسه فقط.
+    </p>
+  </div>
+
+  <!-- TIMER + SEATS -->
+  <div class="timer-card">
+    <div>
+      <div class="timer-label">⏱ الوقت المتبقي</div>
+      <div class="timer-count" id="timer">--:--:--</div>
+    </div>
+    <div class="seats-info">
+      <div class="timer-label">المقاعد المتبقية</div>
+      <div class="seats-num"><span id="seatsLeft">—</span> <span id="seatsTotal">/ —</span></div>
+      <div class="seats-grid" id="seatsGrid"></div>
+    </div>
+  </div>
+
+  <!-- CLOSED BANNER -->
+  <div class="closed-banner" id="closedBanner">
+    <span style="font-size:36px">🔒</span>
+    <p>النافذة مغلقة حالياً.<br>تابع قنواتنا لمعرفة موعد الفتح القادم.</p>
+  </div>
+
+  <!-- SERVICE SELECTOR -->
+  <div class="section-label">اختر الخدمة</div>
+  <div class="service-selector">
+    <button class="service-btn laser" onclick="selectService('laser', this)">
+      <div class="check-mark">✓</div>
+      <span class="service-icon">✨</span>
+      <div class="service-name laser">ليزر</div>
+      <div class="service-price">يبدأ من 500 ر.س</div>
+    </button>
+    <button class="service-btn filler" onclick="selectService('filler', this)">
+      <div class="check-mark">✓</div>
+      <span class="service-icon">💉</span>
+      <div class="service-name filler">فيلر</div>
+      <div class="service-price">يبدأ من 900 ر.س</div>
+    </button>
+    <button class="service-btn botox" onclick="selectService('botox', this)">
+      <div class="check-mark">✓</div>
+      <span class="service-icon">🧬</span>
+      <div class="service-name botox">بوتوكس</div>
+      <div class="service-price">يبدأ من 600 ر.س</div>
+    </button>
+  </div>
+
+  <!-- FORM -->
+  <div class="form-card">
+    <p class="helper-text">
+      قدّم العرض الذي تراه مناسبًا.<br>
+      يتم تقييم العروض حسب توفر المواعيد والطلب الحالي.
+    </p>
+
+    <div class="field-group">
+      <label class="field-label">الاسم الكامل</label>
+      <input class="field-input" id="fullName" type="text" placeholder="اسمك الكامل" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">رقم الجوال</label>
+      <input class="field-input" id="mobile" type="tel" placeholder="05xxxxxxxx" maxlength="10" dir="ltr" style="text-align:right" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">مبلغ العرض</label>
+      <div class="amount-wrapper">
+        <input class="field-input amount" id="offerAmount" type="number" placeholder="0" min="1" />
+        <span class="amount-suffix">ر.س</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <button class="submit-btn" id="submitBtn" onclick="submitOffer()" disabled>
+    <span class="btn-text">أرسل عرضي</span>
+    <div class="spinner"></div>
+  </button>
+
+  <div class="terms">
+    العرض المقبول يُلزم بالحضور في اليوم نفسه خلال ساعتين من التأكيد<br>
+    الملاءمة الطبية يحددها الطبيب عند الزيارة
+  </div>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <span class="result-icon">✅</span>
+    <div class="result-title">تم استلام طلبك</div>
+    <div class="result-body">
+      سيتم التواصل معك عبر واتساب في حال قبول العرض.<br><br>
+      يُرجى إبقاء الجوال متاحاً خلال ساعات النافذة.
+    </div>
+    <button class="result-close" onclick="closeResult()">حسناً</button>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from '@supabase/supabase-js'
+import { SUPABASE_URL, SUPABASE_ANON_KEY, WINDOW_CLOSE_HOUR, WINDOW_OPEN_HOUR, MAX_SEATS } from './config.js'
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+// ── State ────────────────────────────────────────────────
+let selectedService = null
+let windowOpen = true
+
+// ── Timer ────────────────────────────────────────────────
+function updateTimer() {
+  const now = new Date()
+  const close = new Date()
+  close.setHours(WINDOW_CLOSE_HOUR, 0, 0, 0)
+  const diff = close - now
+  if (diff <= 0) {
+    document.getElementById('timer').textContent = '00:00:00'
+    setWindowClosed()
+    return
+  }
+  const h = Math.floor(diff / 3600000)
+  const m = Math.floor((diff % 3600000) / 60000)
+  const s = Math.floor((diff % 60000) / 1000)
+  document.getElementById('timer').textContent =
+    `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+}
+
+setInterval(updateTimer, 1000)
+updateTimer()
+
+// ── Seat counter (MVP: fixed public display, no public data read) ──
+function loadSeats() {
+  const left = MAX_SEATS
+
+  document.getElementById('seatsLeft').textContent  = left
+  document.getElementById('seatsTotal').textContent = `/ ${MAX_SEATS}`
+
+  const grid = document.getElementById('seatsGrid')
+  grid.innerHTML = ''
+  for (let i = 0; i < MAX_SEATS; i++) {
+    const d = document.createElement('div')
+    d.className = 'seat-dot'
+    grid.appendChild(d)
+  }
+}
+
+
+loadSeats()
+
+// ── Window state ─────────────────────────────────────────
+function setWindowClosed() {
+  windowOpen = false
+  document.getElementById('liveDot').style.background = 'var(--red)'
+  document.getElementById('badgeText').textContent = 'النافذة مغلقة'
+  document.getElementById('closedBanner').classList.add('show')
+  document.getElementById('submitBtn').disabled = true
+}
+
+// ── Service select ───────────────────────────────────────
+window.selectService = function(type, el) {
+  selectedService = type
+  document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('active'))
+  el.classList.add('active')
+  checkSubmit()
+}
+
+// ── Validation ───────────────────────────────────────────
+function checkSubmit() {
+  const name   = document.getElementById('fullName').value.trim()
+  const mobile = document.getElementById('mobile').value.trim()
+  const amount = parseInt(document.getElementById('offerAmount').value)
+  const valid  = selectedService && name.length > 1 && mobile.length >= 10 && amount > 0
+  document.getElementById('submitBtn').disabled = !valid || !windowOpen
+}
+
+document.getElementById('fullName').addEventListener('input', checkSubmit)
+document.getElementById('mobile').addEventListener('input', checkSubmit)
+document.getElementById('offerAmount').addEventListener('input', checkSubmit)
+
+// ── Submit ───────────────────────────────────────────────
+window.submitOffer = async function() {
+  const btn = document.getElementById('submitBtn')
+  btn.classList.add('loading')
+  btn.disabled = true
+
+  const payload = {
+    full_name:    document.getElementById('fullName').value.trim(),
+    mobile:       document.getElementById('mobile').value.trim(),
+    service:      selectedService,
+    offer_amount: parseInt(document.getElementById('offerAmount').value),
+    status:       'pending',
+    attended:     false,
+    notes:        ''
+  }
+
+  const { error } = await supabase.from('offers').insert([payload])
+
+  btn.classList.remove('loading')
+
+  if (error) {
+    console.error('Supabase insert error:', error)
+    alert('حدث خطأ أثناء الإرسال: ' + (error.message || 'غير معروف'))
+    btn.disabled = false
+    return
+  }
+
+  document.getElementById('resultOverlay').classList.add('show')
+  resetForm()
+}
+
+function resetForm() {
+  selectedService = null
+  document.getElementById('fullName').value    = ''
+  document.getElementById('mobile').value      = ''
+  document.getElementById('offerAmount').value = ''
+  document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('active'))
+}
+
+window.closeResult = function() {
+  document.getElementById('resultOverlay').classList.remove('show')
+}
+</script>
+</body>
+</html>
