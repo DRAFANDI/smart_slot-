@@ -572,24 +572,47 @@ function updateTimer() {
 setInterval(updateTimer, 1000)
 updateTimer()
 
-// ── Seat counter (MVP: fixed public display, no public data read) ──
-function loadSeats() {
-  const left = MAX_SEATS
+// ── Seat counter (LIVE): reads accepted offers count via secure Supabase RPC ──
+// remaining seats = MAX_SEATS - accepted offers
+async function loadSeats() {
+  let acceptedCount = 0
+
+  try {
+    const { data, error } = await supabase.rpc('count_accepted_offers')
+
+    if (error) {
+      console.warn('Seats RPC error, falling back to fixed seats:', error)
+    } else {
+      acceptedCount = Number(data || 0)
+    }
+  } catch (err) {
+    console.warn('Seats RPC failed, falling back to fixed seats:', err)
+  }
+
+  const left = Math.max(MAX_SEATS - acceptedCount, 0)
 
   document.getElementById('seatsLeft').textContent  = left
   document.getElementById('seatsTotal').textContent = `/ ${MAX_SEATS}`
 
   const grid = document.getElementById('seatsGrid')
   grid.innerHTML = ''
+
   for (let i = 0; i < MAX_SEATS; i++) {
     const d = document.createElement('div')
-    d.className = 'seat-dot'
+    d.className = 'seat-dot' + (i < acceptedCount ? ' taken' : '')
     grid.appendChild(d)
   }
+
+  if (left <= 0) {
+    setWindowClosed()
+  }
+
+  checkSubmit()
 }
 
-
+// Initial load + auto refresh every 30 seconds
 loadSeats()
+setInterval(loadSeats, 30000)
 
 // ── Window state ─────────────────────────────────────────
 function setWindowClosed() {
@@ -650,6 +673,7 @@ window.submitOffer = async function() {
 
   document.getElementById('resultOverlay').classList.add('show')
   resetForm()
+  loadSeats()
 }
 
 function resetForm() {
