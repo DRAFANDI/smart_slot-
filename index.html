@@ -442,21 +442,35 @@
     </div>
     <h1>Smart <span>Slots</span></h1>
     <p class="hero-text">
-      عند توفر مواعيد شاغرة، نفتح نافذة محدودة تتيح لك تقديم عرضك.<br><br>
-      في حال قبول العرض، يتم تأكيد موعدك لليوم نفسه فقط.
+      احصل على موعد شاغر بسعر يناسبك .<br><br>
     </p>
   </div>
 
-  <!-- TIMER + SEATS -->
+    <!-- TIMER + SEATS -->
   <div class="timer-card">
     <div>
       <div class="timer-label">⏱ الوقت المتبقي</div>
       <div class="timer-count" id="timer">--:--:--</div>
     </div>
+
     <div class="seats-info">
       <div class="timer-label">المقاعد المتبقية</div>
       <div class="seats-num"><span id="seatsLeft">—</span> <span id="seatsTotal">/ —</span></div>
       <div class="seats-grid" id="seatsGrid"></div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="form-card" style="margin-bottom:20px;padding:16px 20px;">
+    <div style="font-weight:700;margin-bottom:12px;color:var(--accent)">
+      كيف يعمل Smart Slots؟
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--text)">
+      <div>1️⃣ اختر الخدمة</div>
+      <div>2️⃣ حدد ميزانيتك</div>
+      <div>3️⃣ قدّم طلبك</div>
+      <div>4️⃣ تصلك رسالة تأكيد عند قبول الطلب</div>
     </div>
   </div>
 
@@ -492,8 +506,8 @@
   <!-- FORM -->
   <div class="form-card">
     <p class="helper-text">
-      قدّم العرض الذي تراه مناسبًا.<br>
-      يتم تقييم العروض حسب توفر المواعيد والطلب الحالي.
+      قدّم السعر الذي يناسبك. <br>
+      يتم تقييم الطلبات حسب توفر المواعيد والعروض المقدمة.
     </p>
 
     <div class="field-group">
@@ -507,7 +521,7 @@
     </div>
 
     <div class="field-group">
-      <label class="field-label">مبلغ العرض</label>
+      <label class="field-label">الميزانية المقترحة</label>
       <div class="amount-wrapper">
         <input class="field-input amount" id="offerAmount" type="number" placeholder="0" min="1" />
         <span class="amount-suffix">ر.س</span>
@@ -517,7 +531,7 @@
 
   <!-- SUBMIT -->
   <button class="submit-btn" id="submitBtn" onclick="submitOffer()" disabled>
-    <span class="btn-text">أرسل عرضي</span>
+    <span class="btn-text">قدّم طلبي</span>
     <div class="spinner"></div>
   </button>
 

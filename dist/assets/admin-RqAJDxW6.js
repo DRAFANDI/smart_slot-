@@ -1,0 +1,27 @@
+import{c as g,S as b,a as y}from"./config-D3IR-EWW.js";const i=g(y,b);let c=[],u="pending";async function w(){const{data:t}=await i.auth.getSession();t.session&&(document.getElementById("loginScreen").style.display="none",document.getElementById("dashboard").style.display="block",loadAll())}window.login=async function(){const t=document.getElementById("emailInput").value.trim(),e=document.getElementById("passwordInput").value,{error:n}=await i.auth.signInWithPassword({email:t,password:e});if(n){document.getElementById("loginError").style.display="block";return}document.getElementById("loginScreen").style.display="none",document.getElementById("dashboard").style.display="block",loadAll()};window.logout=async function(){await i.auth.signOut(),location.reload()};w();window.loadAll=async function(){const{data:t,error:e}=await i.from("offers").select("*").order("created_at",{ascending:!1});if(e){console.error("Load offers error:",e),alert("خطأ في تحميل العروض: "+(e.message||""));return}c=t||[],f(),p(),l()};function f(){const t=c.length,e=c.filter(s=>s.status==="accepted").length,n=c.filter(s=>s.status==="pending").length,o=t>0?Math.round(e/t*100):0;document.getElementById("statTotal").textContent=t,document.getElementById("statAccepted").textContent=e,document.getElementById("statPending").textContent=n,document.getElementById("statRate").textContent=o+"٪",["pending","accepted","waitlist","rejected"].forEach(s=>{document.getElementById("count"+$(s)).textContent=c.filter(r=>r.status===s).length})}function p(){const t=["laser","filler","botox"],e={laser:"ليزر ✨",filler:"فيلر 💉",botox:"بوتوكس 🧬"},n=t.map(o=>{const a=c.filter(d=>d.service===o),s=a.length,r=s>0?Math.round(a.reduce((d,m)=>d+m.offer_amount,0)/s):0;return`
+      <div class="breakdown-row">
+        <span class="breakdown-service">${e[o]}</span>
+        <span style="color:var(--muted);font-size:12px">${s} عرض</span>
+        <span class="breakdown-avg">${r?r+" ر.س":"—"}</span>
+      </div>`}).join("");document.getElementById("breakdownContent").innerHTML=n||'<div class="empty-state">لا توجد بيانات</div>'}window.switchTab=function(t,e){u=t,document.querySelectorAll(".tab-btn").forEach(n=>n.classList.remove("active")),e.classList.add("active"),l()};function l(){const t=c.filter(a=>a.status===u),e=document.getElementById("offersList");if(t.length===0){e.innerHTML='<div class="empty-state">لا توجد عروض في هذا القسم</div>';return}const n={laser:"ليزر",filler:"فيلر",botox:"بوتوكس"},o={pending:"قيد المراجعة",accepted:"مقبول",rejected:"مرفوض",waitlist:"انتظار"};e.innerHTML=t.map(a=>{const s=new Date(a.created_at).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"}),r=a.attended?'<span class="attended-tag">✓ حضر</span>':"",d=v(a);return`
+    <div class="offer-card ${a.status}" id="card-${a.id}">
+      <div>
+        <div class="offer-info">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="offer-name">${a.full_name}</span>
+            <span class="status-badge ${a.status}">${o[a.status]}</span>
+            ${r}
+          </div>
+          <div class="offer-meta">
+            <span>📱 ${a.mobile}</span>
+            <button class="action-btn" onclick="copyPhone('${String(a.mobile||"").replace(/'/g,"\\'")}')">📋 نسخ الرقم</button>
+            <a class="action-btn whatsapp" target="_blank" href="${h(a.mobile)}">واتساب</a>
+            <span class="service-tag">${n[a.service]||a.service}</span>
+            <span>🕐 ${s}</span>
+          </div>
+          ${a.notes?`<div style="font-size:11px;color:var(--muted);margin-top:4px">📝 ${a.notes}</div>`:""}
+        </div>
+        <div class="offer-actions">${d}</div>
+      </div>
+      <div class="offer-amount">${a.offer_amount} <span style="font-size:12px;color:var(--muted);font-weight:400">ر.س</span></div>
+    </div>`}).join("")}function v(t){let e="";return t.status!=="accepted"&&(e+=`<button class="action-btn accept"  onclick="updateStatus('${t.id}','accepted')">✅ قبول</button>`),t.status!=="waitlist"&&(e+=`<button class="action-btn waitlist" onclick="updateStatus('${t.id}','waitlist')">⏳ انتظار</button>`),t.status!=="rejected"&&(e+=`<button class="action-btn reject"  onclick="updateStatus('${t.id}','rejected')">❌ رفض</button>`),t.status==="accepted"&&!t.attended&&(e+=`<button class="action-btn attended" onclick="markAttended('${t.id}')">حضر ✓</button>`),e}window.updateStatus=async function(t,e){const{error:n}=await i.from("offers").update({status:e}).eq("id",t);if(n){console.error("Update status error:",n),alert("خطأ في تعديل الحالة: "+(n.message||""));return}if(!n){const o=c.find(a=>a.id===t);o&&(o.status=e),f(),p(),l()}};window.markAttended=async function(t){const{error:e}=await i.from("offers").update({attended:!0}).eq("id",t);if(e){console.error("Mark attended error:",e),alert("خطأ في تحديث الحضور: "+(e.message||""));return}if(!e){const n=c.find(o=>o.id===t);n&&(n.attended=!0),l()}};window.copyPhone=async function(t){try{await navigator.clipboard.writeText(t),alert("تم نسخ الرقم: "+t)}catch{const n=document.createElement("input");n.value=t,document.body.appendChild(n),n.select(),document.execCommand("copy"),document.body.removeChild(n),alert("تم نسخ الرقم: "+t)}};function h(t){const e=String(t||"").replace(/\D/g,"");let n=e;return e.startsWith("0")?n="966"+e.slice(1):e.startsWith("966")||(n="966"+e),"https://wa.me/"+n}function $(t){return t.charAt(0).toUpperCase()+t.slice(1)}i.channel("offers-changes").on("postgres_changes",{event:"*",schema:"public",table:"offers"},loadAll).subscribe();

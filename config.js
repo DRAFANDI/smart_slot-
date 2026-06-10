@@ -11,6 +11,6 @@ export const SUPABASE_ANON_KEY =
 // WINDOW CONFIG
 // ============================================================
 
-export const WINDOW_CLOSE_HOUR = 22
+export const WINDOW_CLOSE_HOUR = 24
 export const WINDOW_OPEN_HOUR  = 16
 export const MAX_SEATS = 20
